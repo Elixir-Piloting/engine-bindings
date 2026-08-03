@@ -1,0 +1,26 @@
+{
+  "name": "engine-bindings",
+  "version": "0.1.0",
+  "description": "Generated typed bindings for the engine capability layer (commands + events), exported from the engine's tauri-specta builder.",
+  "type": "module",
+  "main": "./dist/bindings.js",
+  "types": "./dist/bindings.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/bindings.d.ts",
+      "import": "./dist/bindings.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@tauri-apps/api": "^2"
+  },
+  "devDependencies": {
+    "@tauri-apps/api": "^2",
+    "typescript": "^5.5.3"
+  }
+}
