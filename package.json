@@ -1,6 +1,6 @@
 {
   "name": "engine-bindings",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Generated typed bindings for the engine capability layer (commands + events), exported from the engine's tauri-specta builder.",
   "type": "module",
   "main": "./dist/bindings.js",

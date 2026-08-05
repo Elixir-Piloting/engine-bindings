@@ -297,7 +297,7 @@ export type DbValue = null | number | string | number[] | DbValue[] | Partial<{ 
 /**
  * A `.elxr` file was opened (double-click) and its manifest peeked.
  */
-export type ElxrOpen = { path: string; manifest: ModManifest; icon_data_url?: string | null; size_bytes: number }
+export type ElxrOpen = { path: string; manifest: ModManifest; iconDataUrl?: string | null; sizeBytes: number }
 /**
  * Result of peeking inside a `.elxr` before unpacking.
  */

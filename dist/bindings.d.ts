@@ -112,8 +112,8 @@ export type DbValue = null | number | string | number[] | DbValue[] | Partial<{
 export type ElxrOpen = {
     path: string;
     manifest: ModManifest;
-    icon_data_url?: string | null;
-    size_bytes: number;
+    iconDataUrl?: string | null;
+    sizeBytes: number;
 };
 /**
  * Result of peeking inside a `.elxr` before unpacking.
