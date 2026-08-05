@@ -146,6 +146,17 @@ async monitorVirtualDesktopBounds() : Promise<Bounds> {
     return await TAURI_INVOKE("monitor_virtual_desktop_bounds");
 },
 /**
+ * Read `mods.json` from the app config dir. Missing file => empty vec.
+ */
+async readModManifest() : Promise<Result<ModManifestEntry[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("read_mod_manifest") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * On-demand foreground window snapshot.
  */
 async foregroundWindow() : Promise<Result<ForegroundWindow, string>> {
@@ -255,6 +266,7 @@ export type ForegroundWindow = { title: string; process_name: string; process_id
  * A registered global hotkey was pressed; payload is the owning app id + normalized combo.
  */
 export type HotkeyPressed = { app_id: string; combo: string }
+export type ModManifestEntry = { id: string; name: string; icon?: string | null; description?: string | null; entry: string }
 export type NotificationOptions = { title: string; body: string }
 export type QueryResult = { columns: string[]; rows: DbValue[][] }
 /**
