@@ -189,12 +189,67 @@ export const commands = {
     async monitorVirtualDesktopBounds() {
         return await TAURI_INVOKE("monitor_virtual_desktop_bounds");
     },
-    /**
-     * Read `mods.json` from the app config dir. Missing file => empty vec.
-     */
-    async readModManifest() {
+    async modsReadAutoloadIds() {
         try {
-            return { status: "ok", data: await TAURI_INVOKE("read_mod_manifest") };
+            return { status: "ok", data: await TAURI_INVOKE("mods_read_autoload_ids") };
+        }
+        catch (e) {
+            if (e instanceof Error)
+                throw e;
+            else
+                return { status: "error", error: e };
+        }
+    },
+    async modsSetAutoloadIds(ids) {
+        try {
+            return { status: "ok", data: await TAURI_INVOKE("mods_set_autoload_ids", { ids }) };
+        }
+        catch (e) {
+            if (e instanceof Error)
+                throw e;
+            else
+                return { status: "error", error: e };
+        }
+    },
+    /**
+     * Base URL (loopback) of the running mod server: `http://127.0.0.1:<port>`.
+     */
+    async modsBaseUrl() {
+        try {
+            return { status: "ok", data: await TAURI_INVOKE("mods_base_url") };
+        }
+        catch (e) {
+            if (e instanceof Error)
+                throw e;
+            else
+                return { status: "error", error: e };
+        }
+    },
+    async modsList() {
+        try {
+            return { status: "ok", data: await TAURI_INVOKE("mods_list") };
+        }
+        catch (e) {
+            if (e instanceof Error)
+                throw e;
+            else
+                return { status: "error", error: e };
+        }
+    },
+    async modsInstall(path, forceReplace) {
+        try {
+            return { status: "ok", data: await TAURI_INVOKE("mods_install", { path, forceReplace }) };
+        }
+        catch (e) {
+            if (e instanceof Error)
+                throw e;
+            else
+                return { status: "error", error: e };
+        }
+    },
+    async elxrPeek(path) {
+        try {
+            return { status: "ok", data: await TAURI_INVOKE("elxr_peek", { path }) };
         }
         catch (e) {
             if (e instanceof Error)
@@ -272,6 +327,7 @@ export const commands = {
 export const events = __makeEvents__({
     audioLevel: "audio:level",
     cursorMoved: "cursor-moved",
+    elxrOpen: "elxr:open",
     engineSecondInstance: "engine:second-instance",
     foregroundChanged: "foreground-changed",
     hotkeyPressed: "hotkey-pressed"

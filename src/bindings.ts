@@ -145,12 +145,52 @@ async monitorOverlayBounds() : Promise<Bounds> {
 async monitorVirtualDesktopBounds() : Promise<Bounds> {
     return await TAURI_INVOKE("monitor_virtual_desktop_bounds");
 },
-/**
- * Read `mods.json` from the app config dir. Missing file => empty vec.
- */
-async readModManifest() : Promise<Result<ModManifestEntry[], string>> {
+async modsReadAutoloadIds() : Promise<Result<string[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("read_mod_manifest") };
+    return { status: "ok", data: await TAURI_INVOKE("mods_read_autoload_ids") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async modsSetAutoloadIds(ids: string[]) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("mods_set_autoload_ids", { ids }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Base URL (loopback) of the running mod server: `http://127.0.0.1:<port>`.
+ */
+async modsBaseUrl() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("mods_base_url") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async modsList() : Promise<Result<InstalledMod[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("mods_list") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async modsInstall(path: string, forceReplace: boolean) : Promise<Result<InstallResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("mods_install", { path, forceReplace }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async elxrPeek(path: string) : Promise<Result<ElxrPeek, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("elxr_peek", { path }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -213,12 +253,14 @@ async audioIsRecording(appId: string) : Promise<boolean> {
 export const events = __makeEvents__<{
 audioLevel: AudioLevel,
 cursorMoved: CursorMoved,
+elxrOpen: ElxrOpen,
 engineSecondInstance: SecondInstance,
 foregroundChanged: ForegroundChanged,
 hotkeyPressed: HotkeyPressed
 }>({
 audioLevel: "audio:level",
 cursorMoved: "cursor-moved",
+elxrOpen: "elxr:open",
 engineSecondInstance: "engine:second-instance",
 foregroundChanged: "foreground-changed",
 hotkeyPressed: "hotkey-pressed"
@@ -253,6 +295,14 @@ export type CursorMoved = { x: number; y: number }
  */
 export type DbValue = null | number | string | number[] | DbValue[] | Partial<{ [key in string]: DbValue }>
 /**
+ * A `.elxr` file was opened (double-click) and its manifest peeked.
+ */
+export type ElxrOpen = { path: string; manifest: ModManifest; icon_data_url?: string | null; size_bytes: number }
+/**
+ * Result of peeking inside a `.elxr` before unpacking.
+ */
+export type ElxrPeek = { manifest: ModManifest; iconDataUrl?: string | null; sizeBytes: number }
+/**
  * The currently-active (foreground) window; emitted only on change (~250 ms poll).
  */
 export type ForegroundChanged = { window: ForegroundWindow }
@@ -266,7 +316,12 @@ export type ForegroundWindow = { title: string; process_name: string; process_id
  * A registered global hotkey was pressed; payload is the owning app id + normalized combo.
  */
 export type HotkeyPressed = { app_id: string; combo: string }
-export type ModManifestEntry = { id: string; name: string; icon?: string | null; description?: string | null; entry: string }
+export type InstallResult = { manifest: ModManifest; entryUrl: string }
+export type InstalledMod = { id: string; name: string; entry: string; version?: string | null; author?: string | null; icon?: string | null; iconUrl?: string | null; description?: string | null; entryUrl: string }
+/**
+ * A mod's `manifest.json`.
+ */
+export type ModManifest = { id: string; name: string; version?: string | null; author?: string | null; icon?: string | null; description?: string | null; entry?: string }
 export type NotificationOptions = { title: string; body: string }
 export type QueryResult = { columns: string[]; rows: DbValue[][] }
 /**

@@ -24,10 +24,15 @@ export declare const commands: {
      * Physical bounds of the combined virtual desktop (all monitors unioned).
      */
     monitorVirtualDesktopBounds(): Promise<Bounds>;
+    modsReadAutoloadIds(): Promise<Result<string[], string>>;
+    modsSetAutoloadIds(ids: string[]): Promise<Result<null, string>>;
     /**
-     * Read `mods.json` from the app config dir. Missing file => empty vec.
+     * Base URL (loopback) of the running mod server: `http://127.0.0.1:<port>`.
      */
-    readModManifest(): Promise<Result<ModManifestEntry[], string>>;
+    modsBaseUrl(): Promise<Result<string, string>>;
+    modsList(): Promise<Result<InstalledMod[], string>>;
+    modsInstall(path: string, forceReplace: boolean): Promise<Result<InstallResult, string>>;
+    elxrPeek(path: string): Promise<Result<ElxrPeek, string>>;
     /**
      * On-demand foreground window snapshot.
      */
@@ -43,6 +48,7 @@ export declare const commands: {
 export declare const events: {
     audioLevel: __EventObj__<AudioLevel> & ((handle: __WebviewWindow__) => __EventObj__<AudioLevel>);
     cursorMoved: __EventObj__<CursorMoved> & ((handle: __WebviewWindow__) => __EventObj__<CursorMoved>);
+    elxrOpen: __EventObj__<ElxrOpen> & ((handle: __WebviewWindow__) => __EventObj__<ElxrOpen>);
     engineSecondInstance: __EventObj__<SecondInstance> & ((handle: __WebviewWindow__) => __EventObj__<SecondInstance>);
     foregroundChanged: __EventObj__<ForegroundChanged> & ((handle: __WebviewWindow__) => __EventObj__<ForegroundChanged>);
     hotkeyPressed: __EventObj__<HotkeyPressed> & ((handle: __WebviewWindow__) => __EventObj__<HotkeyPressed>);
@@ -101,6 +107,23 @@ export type DbValue = null | number | string | number[] | DbValue[] | Partial<{
     [key in string]: DbValue;
 }>;
 /**
+ * A `.elxr` file was opened (double-click) and its manifest peeked.
+ */
+export type ElxrOpen = {
+    path: string;
+    manifest: ModManifest;
+    icon_data_url?: string | null;
+    size_bytes: number;
+};
+/**
+ * Result of peeking inside a `.elxr` before unpacking.
+ */
+export type ElxrPeek = {
+    manifest: ModManifest;
+    iconDataUrl?: string | null;
+    sizeBytes: number;
+};
+/**
  * The currently-active (foreground) window; emitted only on change (~250 ms poll).
  */
 export type ForegroundChanged = {
@@ -125,12 +148,32 @@ export type HotkeyPressed = {
     app_id: string;
     combo: string;
 };
-export type ModManifestEntry = {
+export type InstallResult = {
+    manifest: ModManifest;
+    entryUrl: string;
+};
+export type InstalledMod = {
     id: string;
     name: string;
+    entry: string;
+    version?: string | null;
+    author?: string | null;
+    icon?: string | null;
+    iconUrl?: string | null;
+    description?: string | null;
+    entryUrl: string;
+};
+/**
+ * A mod's `manifest.json`.
+ */
+export type ModManifest = {
+    id: string;
+    name: string;
+    version?: string | null;
+    author?: string | null;
     icon?: string | null;
     description?: string | null;
-    entry: string;
+    entry?: string;
 };
 export type NotificationOptions = {
     title: string;
